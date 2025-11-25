@@ -1,11 +1,13 @@
 package com.repair.server.service;
 
 import com.repair.server.dto.CreateOrderRequest;
+import com.repair.server.dto.DashboardStats;
 import com.repair.server.model.RepairOrder;
 import com.repair.server.dto.AssignOrderRequest;
 import com.repair.server.model.OrderStatus;
 import com.repair.server.dto.CreateEvaluationRequest; // 新增
 import com.repair.server.model.Evaluation;
+import com.repair.server.model.OrderPriority;
 
 import java.util.List;
 
@@ -24,7 +26,7 @@ public interface RepairOrderService {
     /**
      * 管理员：获取所有工单 (支持按状态筛选)
      */
-    List<RepairOrder> getAllOrders(OrderStatus status);
+    List<RepairOrder> getAllOrders(OrderStatus status, OrderPriority priority);
 
     /**
      * 管理员：指派维修人员
@@ -35,6 +37,8 @@ public interface RepairOrderService {
      * 管理员：更新状态 (如改为 已完成)
      */
     RepairOrder updateStatus(Long orderId, OrderStatus status);
+    // 管理员：更新优先级
+    RepairOrder updatePriority(Long orderId, OrderPriority priority);
     /**
      * 业主：取消工单
      */
@@ -44,4 +48,5 @@ public interface RepairOrderService {
      * 业主：评价工单
      */
     Evaluation evaluateOrder(Long orderId, CreateEvaluationRequest request, Long userId);
+    DashboardStats getDashboardStats();
 }
