@@ -156,6 +156,11 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         order.setPriority(priority);
         return orderRepository.save(order);
     }
+    @Override
+    public RepairOrder getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("工单不存在"));
+    }
 
     // 记得补上看板统计方法
     @Override

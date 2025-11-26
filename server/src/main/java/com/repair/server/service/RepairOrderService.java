@@ -49,4 +49,5 @@ public interface RepairOrderService {
      */
     Evaluation evaluateOrder(Long orderId, CreateEvaluationRequest request, Long userId);
     DashboardStats getDashboardStats();
+    RepairOrder getOrderById(Long orderId);
 }
