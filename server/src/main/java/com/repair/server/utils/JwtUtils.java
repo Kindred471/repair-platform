@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-    private static final String SECRET = "IamLuoHaoIamsuperhandsome";
+    private static final String SECRET = "IamLuoHaoIamVErysuperhandsomegayyouknow";
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     // === 核心变化：两个过期时间 ===
