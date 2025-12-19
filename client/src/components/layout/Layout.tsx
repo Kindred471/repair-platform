@@ -1,10 +1,21 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { setNavigateToLogin } from '@/utils/api'
 
 /**
  * 通用布局组件
  * 用于登录、注册等公开页面
  */
 export const Layout = () => {
+  const navigate = useNavigate()
+
+  // 设置导航函数，供 api.ts 使用
+  useEffect(() => {
+    setNavigateToLogin(() => {
+      navigate('/login', { replace: true })
+    })
+  }, [navigate])
+
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
       <header className="navbar bg-base-100 shadow-md px-4">

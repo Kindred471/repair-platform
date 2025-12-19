@@ -1,17 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Input } from '@/components/common/Input'
 import { Button } from '@/components/common/Button'
+import * as authUtils from '@/utils/auth'
+import { getFriendlyErrorMessage } from '@/utils/errorMessages'
 
 export const Login = () => {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated, user } = useAuth()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')  // 错误信息状态
+
+  // 已登录判断：如果已登录，自动跳转
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // 获取保存的重定向路径
+      const redirectPath = authUtils.getRedirectPath()
+      
+      if (redirectPath) {
+        // 有保存的路径，跳转到该路径
+        authUtils.removeRedirectPath()
+        navigate(redirectPath, { replace: true })
+      } else {
+        // 没有保存的路径，根据用户角色跳转到默认页面
+        const targetPath = user.role === 'Admin' ? '/admin/dashboard' : '/resident/orders'
+        navigate(targetPath, { replace: true })
+      }
+    }
+  }, [isAuthenticated, user, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,11 +44,25 @@ export const Login = () => {
       // 调用 AuthContext 的 login 方法（现在是异步的）
       await login({ username, password })
       
-      // 登录成功，跳转到首页
-      navigate('/')
+      // 登录成功后，立即处理跳转逻辑
+      // 从 localStorage 读取用户信息（login 函数已经保存了）
+      const currentUser = authUtils.getUser()
+      
+      // 获取保存的重定向路径
+      const redirectPath = authUtils.getRedirectPath()
+      
+      if (redirectPath) {
+        // 有保存的路径，跳转到该路径
+        authUtils.removeRedirectPath()
+        navigate(redirectPath, { replace: true })
+      } else if (currentUser) {
+        // 没有保存的路径，根据用户角色跳转到默认页面
+        const targetPath = currentUser.role === 'Admin' ? '/admin/dashboard' : '/resident/orders'
+        navigate(targetPath, { replace: true })
+      }
     } catch (err) {
-      // 错误处理：显示错误信息
-      const errorMessage = err instanceof Error ? err.message : '登录失败，请重试'
+      // 错误处理：使用友好的错误消息
+      const errorMessage = getFriendlyErrorMessage(err, '登录失败，请重试')
       setError(errorMessage)
     } finally {
       // finally：无论成功还是失败，都要停止 loading

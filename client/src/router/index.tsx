@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { Layout } from '@/components/layout/Layout'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { ResidentLayout } from '@/components/layout/ResidentLayout'
+import { ProtectedRoute } from '@/components/common/ProtectedRoute'
 import { Login } from '@/pages/Login'
 import { Register } from '@/pages/Register'
 import { Home } from '@/pages/Home'
@@ -18,7 +19,11 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'login',
@@ -32,7 +37,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute requiredRole="Admin">
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -54,7 +63,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/resident',
-    element: <ResidentLayout />,
+    element: (
+      <ProtectedRoute requiredRole="Resident">
+        <ResidentLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

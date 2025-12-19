@@ -1,10 +1,19 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { setNavigateToLogin } from '@/utils/api'
 import { FaHome, FaPlus, FaList, FaUser, FaSignOutAlt } from 'react-icons/fa'
 
 export const ResidentLayout = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+
+  // 设置导航函数，供 api.ts 使用
+  useEffect(() => {
+    setNavigateToLogin(() => {
+      navigate('/login', { replace: true })
+    })
+  }, [navigate])
 
   const handleLogout = async () => {
     await logout()

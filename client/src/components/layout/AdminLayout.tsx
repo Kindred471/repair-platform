@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { setNavigateToLogin } from '@/utils/api'
 import { 
   FaHome, 
   FaListAlt, 
@@ -34,6 +35,13 @@ export const AdminLayout = () => {
     setDarkMode(isDark)
     updateTheme(isDark)
   }, [])
+
+  // 设置导航函数，供 api.ts 使用
+  useEffect(() => {
+    setNavigateToLogin(() => {
+      navigate('/login', { replace: true })
+    })
+  }, [navigate])
 
   // 更新主题
   const updateTheme = (isDark: boolean) => {

@@ -6,36 +6,36 @@
 
 ### 🔴 高优先级（必须实现）
 
-#### 1. 缺少路由守卫（重要）
+#### 1. 缺少路由守卫（重要）✅ 已完成
 **问题描述：**
 - 未登录用户可以直接访问受保护页面（如首页）
 - 没有统一的权限控制机制
 
 **解决方案：**
-- [ ] 创建 `ProtectedRoute` 组件
-- [ ] 实现登录状态检查
-- [ ] 实现角色权限检查（可选）
-- [ ] 未登录时跳转到登录页，并保存当前路径用于登录后回跳
-- [ ] 更新路由配置，使用 `ProtectedRoute` 包裹需要登录的页面
+- [x] 创建 `ProtectedRoute` 组件
+- [x] 实现登录状态检查
+- [x] 实现角色权限检查（可选）
+- [x] 未登录时跳转到登录页，并保存当前路径用于登录后回跳
+- [x] 更新路由配置，使用 `ProtectedRoute` 包裹需要登录的页面
 
 **相关文件：**
-- `client/src/components/auth/ProtectedRoute.tsx`（需创建）
-- `client/src/router/index.tsx`（需更新）
+- `client/src/components/common/ProtectedRoute.tsx`（已创建）
+- `client/src/router/index.tsx`（已更新）
 
 ---
 
-#### 2. 登录页面未做已登录判断
+#### 2. 登录页面未做已登录判断 ✅ 已完成
 **问题描述：**
 - 已登录用户仍可以访问 `/login` 页面
 - 造成不必要的页面跳转
 
 **解决方案：**
-- [ ] 在 `Login` 组件中添加 `useEffect` 检查登录状态
-- [ ] 如果已登录，自动跳转到首页或之前访问的页面
-- [ ] 使用 `useLocation` 获取登录前的路径
+- [x] 在 `Login` 组件中添加 `useEffect` 检查登录状态
+- [x] 如果已登录，自动跳转到首页或之前访问的页面
+- [x] 使用 `useLocation` 获取登录前的路径
 
 **相关文件：**
-- `client/src/pages/Login.tsx`（需更新）
+- `client/src/pages/Login.tsx`（已更新）
 
 ---
 
@@ -58,7 +58,7 @@
 
 ### 🟡 中优先级（建议实现）
 
-#### 4. 登录成功后跳转逻辑不完善
+#### 4. 登录成功后跳转逻辑不完善 ✅ 已完成
 **问题描述：**
 - 登录成功后固定跳转到 `/`
 - 没有考虑：
@@ -66,71 +66,71 @@
   - 不同角色的默认页面（管理员和业主可能不同）
 
 **解决方案：**
-- [ ] 在 `ProtectedRoute` 中保存登录前访问的路径
-- [ ] 登录成功后优先跳转到保存的路径
-- [ ] 如果没有保存路径，根据用户角色跳转到不同默认页面
-- [ ] 管理员默认跳转到 `/admin/dashboard`
-- [ ] 业主默认跳转到 `/resident/orders`
+- [x] 在 `ProtectedRoute` 中保存登录前访问的路径
+- [x] 登录成功后优先跳转到保存的路径
+- [x] 如果没有保存路径，根据用户角色跳转到不同默认页面
+- [x] 管理员默认跳转到 `/admin/dashboard`
+- [x] 业主默认跳转到 `/resident/orders`
 
 **相关文件：**
-- `client/src/pages/Login.tsx`（需更新）
-- `client/src/context/AuthContext.tsx`（可能需要更新）
+- `client/src/pages/Login.tsx`（已更新）
+- `client/src/context/AuthContext.tsx`（已更新）
 
 ---
 
-#### 5. 登出后未清除跳转状态
+#### 5. 登出后未清除跳转状态 ✅ 已完成
 **问题描述：**
 - 在 `api.ts` 的响应拦截器中使用 `window.location.href` 硬跳转
 - 丢失了 React Router 的状态管理
 
 **解决方案：**
-- [ ] 在响应拦截器中避免使用 `window.location.href`
-- [ ] 方案1：通过事件通知 `AuthContext` 进行登出
-- [ ] 方案2：使用 React Router 的 `navigate`（需要特殊处理）
-- [ ] 在 `Layout` 组件的登出按钮中，使用 `navigate` 而不是硬跳转
+- [x] 在响应拦截器中避免使用 `window.location.href`
+- [x] 方案1：通过事件通知 `AuthContext` 进行登出
+- [x] 方案2：使用 React Router 的 `navigate`（需要特殊处理）
+- [x] 在 `Layout` 组件的登出按钮中，使用 `navigate` 而不是硬跳转
 
 **相关文件：**
-- `client/src/utils/api.ts`（需更新）
-- `client/src/components/layout/Layout.tsx`（需更新）
+- `client/src/utils/api.ts`（已更新）
+- `client/src/components/layout/Layout.tsx`（已更新）
 
 ---
 
-#### 6. 缺少 Token 过期时间检查
+#### 6. 缺少 Token 过期时间检查 ✅ 已完成
 **问题描述：**
 - 没有在客户端检查 token 是否即将过期
 - 可能导致频繁触发自动刷新
 
 **解决方案：**
-- [ ] 解析 JWT 获取过期时间
-- [ ] 在 token 即将过期前（如剩余 5 分钟）主动刷新
-- [ ] 使用定时器或请求前检查
-- [ ] 避免在每次请求时都检查，优化性能
+- [x] 解析 JWT 获取过期时间
+- [x] 在 token 即将过期前（如剩余 5 分钟）主动刷新
+- [x] 使用定时器或请求前检查
+- [x] 避免在每次请求时都检查，优化性能
 
 **相关文件：**
-- `client/src/utils/auth.ts`（需添加 JWT 解析工具）
-- `client/src/context/AuthContext.tsx`（可能需要添加定时刷新逻辑）
-- `client/src/utils/api.ts`（请求拦截器中添加检查）
+- `client/src/utils/auth.ts`（已添加 JWT 解析工具）
+- `client/src/context/AuthContext.tsx`（已添加 token 验证）
+- `client/src/utils/api.ts`（请求拦截器中已添加检查）
 
 ---
 
 ### 🟢 低优先级（可选优化）
 
-#### 7. 错误处理可以更细化
+#### 7. 错误处理可以更细化 ✅ 已完成
 **问题描述：**
 - 登录错误提示比较通用
 - 可以根据不同的错误类型提供更友好的提示
 
 **解决方案：**
-- [ ] 根据后端返回的错误码或消息类型，提供不同的错误提示
-- [ ] 例如：
+- [x] 根据后端返回的错误码或消息类型，提供不同的错误提示
+- [x] 例如：
   - "用户名或密码错误" → "用户名或密码不正确，请重试"
   - "用户不存在" → "该用户名不存在，请检查用户名"
   - "账户被锁定" → "账户已被锁定，请联系管理员"
-- [ ] 添加错误码映射表
+- [x] 添加错误码映射表
 
 **相关文件：**
-- `client/src/pages/Login.tsx`（需更新）
-- `client/src/utils/errorMessages.ts`（可创建错误消息映射文件）
+- `client/src/pages/Login.tsx`（已更新）
+- `client/src/utils/errorMessages.ts`（已创建错误消息映射文件）
 
 ---
 

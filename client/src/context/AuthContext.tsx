@@ -18,6 +18,9 @@ interface AuthContextType {
 // 创建 Context，初始值为 undefined
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// 登出事件名称（用于通知其他模块）
+export const LOGOUT_EVENT = 'auth:logout'
+
 // 2. Provider 组件：负责管理状态
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null)
@@ -29,8 +32,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const savedUser = authUtils.getUser()
       const token = authUtils.getToken()
       
+      // 验证 token 是否有效
       if (savedUser && token) {
+        if (authUtils.isTokenValid(token)) {
+          // token 有效，设置用户状态
         setUserState(savedUser)
+        } else {
+          // token 已过期，清除认证信息
+          authUtils.clearAuth()
+        }
       }
       setIsLoading(false)
     }
@@ -83,7 +93,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // 登出动作：调用接口 + 清除本地状态
   const logout = async () => {
     try {
-      
       await logoutApi()
     } catch (error) {
       // 登出接口失败不影响本地登出
@@ -94,6 +103,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // 这样即使网络错误，用户也能正常登出
       setUserState(null)
       authUtils.clearAuth()
+      
+      // 发送登出事件，通知其他模块（如 api.ts）
+      window.dispatchEvent(new CustomEvent(LOGOUT_EVENT))
     }
   }
 

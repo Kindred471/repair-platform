@@ -2,15 +2,43 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResp
 import { ApiResponse } from '@/types'
 import * as authUtils from './auth'
 import { refreshToken as refreshTokenApi } from '@/services/authService'
+import { LOGOUT_EVENT } from '@/context/AuthContext'
 
 // 创建 axios 实例
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: 'http://127.0.0.1:4523/m1/7450432-7184772-default/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
+
+// 导航函数（通过事件通知，避免直接使用 window.location.href）
+let navigateToLogin: (() => void) | null = null
+
+// 设置导航函数（由应用入口调用）
+export const setNavigateToLogin = (navigateFn: () => void) => {
+  navigateToLogin = navigateFn
+}
+
+// 跳转到登录页的辅助函数
+const redirectToLogin = () => {
+  if (navigateToLogin) {
+    navigateToLogin()
+  } else {
+    // 如果还没有设置导航函数，使用 fallback
+    window.location.href = '/login'
+  }
+}
+
+// 监听登出事件
+if (typeof window !== 'undefined') {
+  window.addEventListener(LOGOUT_EVENT, () => {
+    // 登出时清除所有待处理的请求
+    failedQueue = []
+    isRefreshing = false
+  })
+}
 
 // 标记：是否正在刷新 token（防止并发请求时多次刷新）
 let isRefreshing = false
@@ -34,13 +62,42 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 
 // ==================== 请求拦截器 ====================
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // 刷新 token 的接口不需要 Authorization 头
+  async (config: InternalAxiosRequestConfig) => {
+    // 刷新 token 的接口不需要 Authorization 头和过期检查
     if (config.url?.includes('/auth/refresh')) {
       return config
     }
     
     const token = authUtils.getToken()
+    
+    // 检查 token 是否即将过期（提前5分钟刷新）
+    if (token && authUtils.isTokenExpiringSoon(token, 5)) {
+      // token 即将过期，尝试刷新
+      try {
+        const refreshToken = authUtils.getRefreshToken()
+        if (refreshToken) {
+          const response = await refreshTokenApi({ refreshToken })
+          authUtils.setToken(response.accessToken)
+          // 使用新的 token
+          if (config.headers) {
+            config.headers.Authorization = `Bearer ${response.accessToken}`
+          }
+          return config
+        }
+      } catch (error) {
+        // 刷新失败，清除认证信息
+        authUtils.clearAuth()
+        redirectToLogin()
+        return Promise.reject(new Error('登录已过期，请重新登录'))
+      }
+    }
+    
+    // 检查 token 是否已过期
+    if (token && authUtils.isTokenExpired(token)) {
+      authUtils.clearAuth()
+      redirectToLogin()
+      return Promise.reject(new Error('登录已过期，请重新登录'))
+    }
     
     // 如果存在 token，添加到请求头
     if (token && config.headers) {
@@ -105,7 +162,7 @@ api.interceptors.response.use(
         // 没有 refreshToken，直接登出
         processQueue(new Error('登录已过期'))
         authUtils.clearAuth()
-        window.location.href = '/login'
+        redirectToLogin()
         return Promise.reject(new Error('登录已过期，请重新登录'))
       }
       
@@ -129,7 +186,7 @@ api.interceptors.response.use(
         // 刷新失败，清除认证信息并跳转登录
         processQueue(new Error('刷新 token 失败'))
         authUtils.clearAuth()
-        window.location.href = '/login'
+        redirectToLogin()
         return Promise.reject(new Error('登录已过期，请重新登录'))
       } finally {
         isRefreshing = false
@@ -146,7 +203,7 @@ api.interceptors.response.use(
           // 未授权：token 过期或无效
           // 清除本地存储，跳转到登录页
           authUtils.clearAuth()
-          window.location.href = '/login'
+          redirectToLogin()
           return Promise.reject(new Error('登录已过期，请重新登录'))
         
         case 403:
