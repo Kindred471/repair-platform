@@ -11,30 +11,29 @@ export const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string>('')  // 错误信息状态
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault() // 阻止表单默认提交刷新页面
+    e.preventDefault()
+    
+    // 重置错误信息
+    setError('')
     setIsLoading(true)
 
-    // 模拟 API 请求延迟
-    setTimeout(() => {
-      // 假装这是后端返回的数据
-      const mockUser = {
-        id: '1',
-        username: username,
-        role: (username === 'admin' ? 'Admin' : 'Resident') as import('@/types').UserRole, // 简单判定：用户名是 admin 就是管理员
-        createdAt: new Date().toISOString()
-      }
+    try {
+      // 调用 AuthContext 的 login 方法（现在是异步的）
+      await login({ username, password })
       
-      const mockToken = 'fake-jwt-token-123'
-
-      // 调用 AuthContext 的 login 方法
-      login(mockUser, mockToken)
-      
-      setIsLoading(false)
-      // 登录成功跳转到首页
+      // 登录成功，跳转到首页
       navigate('/')
-    }, 1000)
+    } catch (err) {
+      // 错误处理：显示错误信息
+      const errorMessage = err instanceof Error ? err.message : '登录失败，请重试'
+      setError(errorMessage)
+    } finally {
+      // finally：无论成功还是失败，都要停止 loading
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -42,6 +41,13 @@ export const Login = () => {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title justify-center text-2xl mb-6">登录</h2>
+          
+          {/* 错误提示 */}
+          {error && (
+            <div className="alert alert-error mb-4">
+              <span>{error}</span>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input 

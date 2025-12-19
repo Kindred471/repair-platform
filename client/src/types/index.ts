@@ -59,8 +59,41 @@ export interface RepairOrder {
     updatedAt?: string
   }
 
-  export interface ApiResponse<T = unknown> {
-    success: boolean
-    data?: T
-    message?: string
-  }
+export interface ApiResponse<T = unknown> {
+  code: number
+  message: string
+  data: T
+}
+
+  // 登录请求参数
+export interface LoginRequest {
+  username: string
+  password: string
+}
+
+// 登录响应数据
+export interface LoginResponse {
+  accessToken: string
+  refreshToken: string
+  id: number  
+  username: string
+  role: 'ADMIN' | 'RESIDENT'
+}
+
+// 刷新 Token 请求参数
+export interface RefreshTokenRequest {
+  refreshToken: string
+}
+
+// 刷新 Token 响应数据
+export interface RefreshTokenResponse {
+  accessToken: string
+}
+
+// 更新 User 类型，使其与后端返回一致
+export interface User {
+  id: string  
+  username: string
+  role: UserRole
+  createdAt?: string
+}
