@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { AdminOrdersProvider } from '@/context/AdminOrdersContext'
 import { setNavigateToLogin } from '@/utils/api'
 import { 
   FaHome, 
@@ -227,7 +228,9 @@ export const AdminLayout = () => {
 
         {/* 主内容区 - 添加左边距避免被侧边栏遮挡 */}
         <main className="flex-1 p-4 lg:p-6 min-h-screen lg:ml-64">
-          <Outlet />
+          <AdminOrdersProvider>
+            <Outlet />
+          </AdminOrdersProvider>
         </main>
       </div>
     </div>

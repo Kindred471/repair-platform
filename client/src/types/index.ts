@@ -11,9 +11,9 @@ export type RepairStatus =
 export type Priority = 'P0' | 'P1' | 'P2'
 // 实体结构定义
 export interface User {
-    id: string
+    id: number
     username: string
-    role: UserRole
+    role: string
     createdAt?: string
 }
 
@@ -34,12 +34,12 @@ export interface Favorite {
 }
 
 export interface RepairOrder {
-    id: string
+    id: number
     title: string
     description: string
     address: string
     status: RepairStatus
-    residentId: string // 对应数据库 authorId
+    author?: User // 对应数据库关联的作者信息
     
     // 派单信息
     assignedCompany?: string
@@ -90,10 +90,9 @@ export interface RefreshTokenResponse {
   accessToken: string
 }
 
-// 更新 User 类型，使其与后端返回一致
 export interface User {
-  id: string  
+  id: number  
   username: string
-  role: UserRole
+  role: string
   createdAt?: string
 }

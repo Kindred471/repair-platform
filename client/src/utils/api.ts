@@ -271,3 +271,10 @@ export const put = <T = unknown>(url: string, data?: unknown): Promise<T> => {
 export const del = <T = unknown>(url: string, params?: Record<string, unknown>): Promise<T> => {
   return api.delete<ApiResponse<T>>(url, { params }).then(res => res.data as T)
 }
+
+/**
+ * 通用 PATCH 请求
+ */
+export const patch = <T = unknown>(url: string, data?: unknown): Promise<T> => {
+  return api.patch<ApiResponse<T>>(url, data).then(res => res.data as T)
+}

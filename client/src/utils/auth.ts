@@ -66,7 +66,8 @@ export const isTokenExpired = (token: string | null): boolean => {
   if (!token) return true
   
   const payload = parseJWT(token)
-  if (!payload || !payload.exp) return true
+  // 如果不是标准的 JWT 或没有提供过期时间 exp，则默认前端不判断过期，将其放行，全权交由后端的 401 HTTP状态码触发拦截器来处理无感刷新
+  if (!payload || !payload.exp) return false
   
   // exp 是 Unix 时间戳（秒），需要转换为毫秒
   const expirationTime = payload.exp * 1000
@@ -85,7 +86,8 @@ export const isTokenExpiringSoon = (token: string | null, bufferMinutes = 5): bo
   if (!token) return true
   
   const payload = parseJWT(token)
-  if (!payload || !payload.exp) return true
+  // 如果不是标准的 JWT，则放弃“提前预测过期”行为，由拦截器在遇到 401 时安全处理
+  if (!payload || !payload.exp) return false
   
   const expirationTime = payload.exp * 1000
   const currentTime = Date.now()
