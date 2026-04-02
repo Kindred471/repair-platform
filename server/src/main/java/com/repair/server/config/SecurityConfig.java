@@ -4,12 +4,13 @@ import com.repair.server.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 1. 导入这个
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -18,13 +19,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 0. 启用 CORS (使用 CorsConfig 中定义的 CorsFilter Bean)
+                .cors(Customizer.withDefaults())
+
                 // 1. 关闭 CSRF (前后端分离项目不需要)
                 .csrf(csrf -> csrf.disable())
 
@@ -36,14 +42,10 @@ public class SecurityConfig {
                         // A. 放行登录注册 (所有人都能访问)
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // B. === 关键修改：管理员接口只有管理员能访问 ===
-                        // 注意：hasRole("ADMIN") 会自动检查是否有 "ROLE_ADMIN" 权限
+                        // B. 管理员接口只有管理员能访问
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // C. 业主接口 (可选，如果不加这行，管理员也能访问业主接口，通常没问题)
-                        // .requestMatchers("/api/orders/**").hasRole("RESIDENT")
-
-                        // D. 其他所有接口都需要登录 (不管角色)
+                        // C. 其他所有接口都需要登录 (不管角色)
                         .anyRequest().authenticated()
                 )
 

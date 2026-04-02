@@ -43,6 +43,10 @@ public class RepairOrder {
 
     private String cancellationReason;
 
+    // 记录撤销请求之前的状态，用于业主拒绝撤销后恢复
+    @Enumerated(EnumType.STRING)
+    private OrderStatus previousStatus;
+
     // --- 维修分配 ---
     private String assignedCompany;
     private String assignedWorkerName;

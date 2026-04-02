@@ -9,9 +9,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: community_repair
-    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./data/mysql:/var/lib/mysql
+    # 健康检查：确保 MySQL 完全启动后再让 server 连接
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
 
   # Redis 缓存
   redis:
@@ -22,3 +28,28 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Java 后端服务
+  server:
+    build: .
+    container_name: repair_server
+    ports:
+      - "8080:8080"
+    environment:
+      # 覆盖 application.yml 中的 DataSource 配置 (注意 host 是容器名 mysql)
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/community_repair?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      # 覆盖 Redis Host (指向容器名 redis)
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
