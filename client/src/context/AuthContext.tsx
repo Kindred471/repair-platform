@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // 构建用户对象
     const userData: User = {
-      id: response.id.toString(), // 修复类型错误，确保为 string
+      id: response.id, // id 保持 number 类型
       username: response.username,
       role: userRole,
     }

@@ -1,4 +1,4 @@
-import { RepairOrder, RepairStatus, Priority } from '@/types'
+import { RepairOrder } from '@/types'
 
 export const mockOrders: RepairOrder[] = [
   {

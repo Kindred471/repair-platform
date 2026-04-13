@@ -2,7 +2,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { setNavigateToLogin } from '@/utils/api'
-import { FaHome, FaPlus, FaList, FaUser, FaSignOutAlt } from 'react-icons/fa'
+import { FaPlus, FaList, FaUser, FaSignOutAlt } from 'react-icons/fa'
 
 export const ResidentLayout = () => {
   const { user, logout } = useAuth()
