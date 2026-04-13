@@ -6,7 +6,7 @@ import { LOGOUT_EVENT } from '@/context/AuthContext'
 
 // 创建 axios 实例
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:4523/m1/7450432-7184772-default/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

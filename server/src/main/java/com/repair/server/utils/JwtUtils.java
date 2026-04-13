@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -14,8 +15,7 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-    private static final String SECRET = "IamLuoHaoIamVErysuperhandsomegayyouknow";
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private final Key key;
 
     // === 核心变化：两个过期时间 ===
     // Access Token: 15分钟 (短命，用于业务请求)
@@ -23,6 +23,10 @@ public class JwtUtils {
 
     // Refresh Token: 7天 (长命，只用于换新 Access Token)
     public static final long REFRESH_EXPIRE = 7 * 24 * 60 * 60 * 1000L;
+
+    public JwtUtils(@Value("${app.jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     /**
      * 通用生成方法

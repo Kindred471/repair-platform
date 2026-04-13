@@ -2,3 +2,5 @@
 *.iml
 .vscode/
 .env
+.env.production
+server/data/

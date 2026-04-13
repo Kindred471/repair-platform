@@ -1,0 +1,45 @@
+name: Deploy to Server
+
+# 触发条件：push 到 main 分支时自动部署
+on:
+  push:
+    branches: [ main ]
+
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # 进入项目目录（首次需要 git clone）
+            cd ~/repair-platform || {
+              echo "项目目录不存在，正在克隆..."
+              git clone https://github.com/Kindred471/repair-platform.git ~/repair-platform
+              cd ~/repair-platform
+            }
+
+            # 拉取最新代码
+            git pull origin main
+
+            # 写入生产环境变量
+            cat > .env.production << 'EOF'
+            MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOF
+
+            # 使用生产配置启动
+            docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
+
+            # 清理旧镜像
+            docker image prune -f
+
+            echo "✅ 部署完成！"
