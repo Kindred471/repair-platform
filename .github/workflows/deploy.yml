@@ -37,9 +37,9 @@ jobs:
             EOF
 
             # 使用生产配置启动
-            docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
+            sudo docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
 
             # 清理旧镜像
-            docker image prune -f
+            sudo docker image prune -f
 
             echo "✅ 部署完成！"
