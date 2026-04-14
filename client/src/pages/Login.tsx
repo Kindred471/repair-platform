@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Input } from '@/components/common/Input'
 import { Button } from '@/components/common/Button'
@@ -110,6 +110,10 @@ export const Login = () => {
               >
                 登录
               </Button>
+            </div>
+
+            <div className="text-center mt-4 text-sm text-base-content/70">
+              还没有账号？ <Link to="/register" className="text-primary hover:underline font-medium">免费注册</Link>
             </div>
           </form>
         </div>

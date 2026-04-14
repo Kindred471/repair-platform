@@ -15,3 +15,8 @@ export const refreshToken = (params: RefreshTokenRequest): Promise<RefreshTokenR
 export const logout = (): Promise<void> => {
   return post<void>('/auth/logout')
 }
+
+// ==================== 注册接口 ====================
+export const register = (params: import('@/types').RegisterRequest): Promise<void> => {
+  return post<void>('/auth/register', params)
+}
