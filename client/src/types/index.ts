@@ -13,7 +13,6 @@ export type Priority = 'P0' | 'P1' | 'P2'
 export interface User {
     id: number
     username: string
-    password: string
     role: string
     createdAt?: string
 }
@@ -91,12 +90,6 @@ export interface RefreshTokenResponse {
   accessToken: string
 }
 
-export interface User {
-  id: number  
-  username: string
-  role: string
-  createdAt?: string
-}
 
 // 注册请求参数
 export interface RegisterRequest {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getMyRepairOrders, cancelRepairOrder, evaluateRepairOrder } from '@/services/residentService'
-import { RepairOrder, RepairStatus } from '@/types'
+import { RepairOrder } from '@/types'
 import { Button } from '@/components/common/Button'
 import { Badge } from '@/components/common/Badge'
 import { getFriendlyErrorMessage } from '@/utils/errorMessages'
@@ -36,7 +36,7 @@ export const RepairOrderList = () => {
   const handleCancel = async (id: number) => {
     if (!window.confirm('确定要取消此报修单吗？')) return
     try {
-      await cancelRepairOrder(id, '居民主动取消')
+      await cancelRepairOrder(id)
       fetchOrders()
     } catch (err) {
       alert(getFriendlyErrorMessage(err, '取消失败'))
@@ -150,7 +150,7 @@ export const RepairOrderList = () => {
                       )}
                       {order.status === 'COMPLETED' && !order.evaluation && (
                         <Button 
-                          variant="outline" 
+                          variant="ghost" 
                           className="border-primary text-primary hover:bg-primary hover:text-white btn-sm font-normal" 
                           onClick={() => openEvalModal(order.id)}
                         >

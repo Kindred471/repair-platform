@@ -32,7 +32,7 @@ export const createRepairOrder = (data: {
  * 取消工单
  * PATCH /api/orders/{id}/cancel
  */
-export const cancelRepairOrder = (id: number, reason?: string): Promise<void> => {
+export const cancelRepairOrder = (id: number): Promise<void> => {
   // 根据文档，取消工单使用 PATCH 方法，无Body参数，直接请求路径即可
   return patch<void>(`/api/orders/${id}/cancel`)
 }
