@@ -1,34 +1,79 @@
 name: Deploy to Server
 
-# 触发条件：push 到 main 分支时自动部署
 on:
   push:
     branches: [main]
-
-  # 允许手动触发
   workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest # 使用 GitHub 提供的高配运行机
+
     steps:
-      - name: Deploy via SSH
+      - name: 1. 拉取代码 (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 2. 配置 Node.js 环境并编译前端
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: 编译 Frontend
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run build
+
+      - name: 3. 配置 Java 环境并编译后端
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - name: 编译 Backend
+        working-directory: ./server
+        run: mvn clean package -DskipTests
+
+      - name: 4. 整理编译产物并打包
+        run: |
+          # 创建临时部署目录，保持原有文件结构
+          mkdir -p deploy/client deploy/server/target
+
+          # 复制前端成品和配置
+          cp -r client/dist deploy/client/
+          cp client/nginx.conf deploy/client/
+          cp client/Dockerfile deploy/client/
+
+          # 复制后端成品和配置
+          cp server/target/*.jar deploy/server/target/
+          cp server/Dockerfile deploy/server/
+
+          # 复制 docker-compose 文件
+          cp docker-compose.prod.yml deploy/
+
+          # 压缩为 deploy.tar.gz
+          tar -czvf deploy.tar.gz -C deploy .
+
+      - name: 5. 将成品压缩包发送到云服务器
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "deploy.tar.gz"
+          target: "~/" # 先传到用户根目录
+
+      - name: 6. 登录服务器解压并运行
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 30m
           script: |
-            # 进入项目目录（首次需要 git clone）
-            cd ~/repair-platform || {
-              echo "项目目录不存在，正在克隆..."
-              git clone https://github.com/Kindred471/repair-platform.git ~/repair-platform
-              cd ~/repair-platform
-            }
+            # 创建项目目录并清空旧文件
+            mkdir -p ~/repair-platform
 
-            # 拉取最新代码
-            git pull origin main
+            # 将传过来的成品解压到项目目录
+            tar -xzvf ~/deploy.tar.gz -C ~/repair-platform
+            cd ~/repair-platform
 
             # 写入生产环境变量
             cat > .env.production << 'EOF'
@@ -37,10 +82,11 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOF
 
-            # 使用生产配置启动
+            # 由于没有了漫长的编译过程，这里的构建将在几秒内完成
             sudo docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build --remove-orphans
 
-            # 清理旧镜像
+            # 清理旧镜像和刚刚上传的压缩包
             sudo docker image prune -f
+            rm ~/deploy.tar.gz
 
-            echo "✅ 部署完成！"
+            echo "✅ 优雅部署完成！再也不会卡死了！"
