@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useAdminOrders } from '@/hooks/useAdminOrders'
 import { RepairOrderTable } from '@/components/admin/RepairOrderTable'
-import { OrderDetailsModal, AssignWorkerModal, ChangePriorityModal, CancelRequestModal } from '@/components/admin/ActionModals'
+import { OrderDetailsModal, AssignWorkerModal, ChangePriorityModal, CancelRequestModal, CompleteOrderModal } from '@/components/admin/ActionModals'
 import { RepairOrder } from '@/types'
 
 export const AllRepairOrders = () => {
   const { orders, favorites, toggleFavorite, updateOrderStatus, updateOrderPriority } = useAdminOrders()
   
-  const [activeModal, setActiveModal] = useState<'DETAILS' | 'ASSIGN' | 'PRIORITY' | 'CANCEL' | null>(null)
+  const [activeModal, setActiveModal] = useState<'DETAILS' | 'ASSIGN' | 'PRIORITY' | 'CANCEL' | 'COMPLETE' | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<RepairOrder | null>(null)
 
   const openModal = (type: typeof activeModal, order: RepairOrder) => {
@@ -37,6 +37,7 @@ export const AllRepairOrders = () => {
             onAssignWorker={(order) => openModal('ASSIGN', order)}
             onChangePriority={(order) => openModal('PRIORITY', order)}
             onRequestCancel={(order) => openModal('CANCEL', order)}
+            onCompleteOrder={(order) => openModal('COMPLETE', order)}
           />
         </div>
       </div>
@@ -66,6 +67,14 @@ export const AllRepairOrders = () => {
         order={selectedOrder}
         onSubmit={(id, reason) => {
           updateOrderStatus(id, 'CANCELLATION_REQUESTED', { cancellationReason: reason })
+        }}
+      />
+      <CompleteOrderModal
+        isOpen={activeModal === 'COMPLETE'}
+        onClose={closeModal}
+        order={selectedOrder}
+        onSubmit={(id) => {
+          updateOrderStatus(id, 'COMPLETED')
         }}
       />
     </div>

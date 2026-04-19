@@ -130,7 +130,7 @@ export const ChangePriorityModal: React.FC<ModalProps & { onSubmit: (orderId: nu
                     </label>
                     <div className="modal-action">
                         <button type="button" className="btn" onClick={onClose}>取消</button>
-                        <button type="submit" className="btn btn-primary">保存修订单</button>
+                        <button type="submit" className="btn btn-primary">保存订单</button>
                     </div>
                 </form>
             </div>
@@ -163,6 +163,33 @@ export const CancelRequestModal: React.FC<ModalProps & { onSubmit: (orderId: num
                     <div className="modal-action">
                         <button type="button" className="btn" onClick={onClose}>取消</button>
                         <button type="submit" className="btn btn-error text-white">确认提交撤销请求</button>
+                    </div>
+                </form>
+            </div>
+            <form method="dialog" className="modal-backdrop"><button onClick={onClose}>close</button></form>
+        </dialog>
+    )
+}
+
+export const CompleteOrderModal: React.FC<ModalProps & { onSubmit: (orderId: number) => void }> = ({ isOpen, onClose, order, onSubmit }) => {
+    if (!order) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSubmit(order.id);
+        onClose();
+    }
+
+    return (
+        <dialog className={`modal ${isOpen ? 'modal-open' : ''}`}>
+            <div className="modal-box">
+                <form method="dialog"><button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={onClose}>✕</button></form>
+                <h3 className="font-bold text-lg mb-2 text-success">完成工单</h3>
+                <p className="text-sm opacity-70 mb-6">确认维修工作已完成吗？完成后业主将可以对此工单进行评价。</p>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <div className="modal-action">
+                        <button type="button" className="btn" onClick={onClose}>取消</button>
+                        <button type="submit" className="btn btn-success text-white">确认完成工单</button>
                     </div>
                 </form>
             </div>

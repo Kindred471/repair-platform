@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAdminOrders } from '@/hooks/useAdminOrders'
 import { RepairOrderTable } from '@/components/admin/RepairOrderTable'
-import { OrderDetailsModal, AssignWorkerModal, ChangePriorityModal, CancelRequestModal } from '@/components/admin/ActionModals'
+import { OrderDetailsModal, AssignWorkerModal, ChangePriorityModal, CancelRequestModal, CompleteOrderModal } from '@/components/admin/ActionModals'
 import { RepairOrder } from '@/types'
 
 export const WeeklyFocus = () => {
@@ -10,7 +10,7 @@ export const WeeklyFocus = () => {
   // 筛选关注列表中且未完成的工单
   const focusedOrders = orders.filter(o => favorites.includes(o.id) && o.status !== 'COMPLETED')
 
-  const [activeModal, setActiveModal] = useState<'DETAILS' | 'ASSIGN' | 'PRIORITY' | 'CANCEL' | null>(null)
+  const [activeModal, setActiveModal] = useState<'DETAILS' | 'ASSIGN' | 'PRIORITY' | 'CANCEL' | 'COMPLETE' | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<RepairOrder | null>(null)
 
   const openModal = (type: typeof activeModal, order: RepairOrder) => {
@@ -43,6 +43,7 @@ export const WeeklyFocus = () => {
             onAssignWorker={(order) => openModal('ASSIGN', order)}
             onChangePriority={(order) => openModal('PRIORITY', order)}
             onRequestCancel={(order) => openModal('CANCEL', order)}
+            onCompleteOrder={(order) => openModal('COMPLETE', order)}
           />
         </div>
       </div>
@@ -52,6 +53,7 @@ export const WeeklyFocus = () => {
       <AssignWorkerModal isOpen={activeModal === 'ASSIGN'} onClose={closeModal} order={selectedOrder} onSubmit={(id, company, worker, phone) => updateOrderStatus(id, 'PROCESSING', { assignedCompany: company, assignedWorkerName: worker, assignedWorkerPhone: phone })} />
       <ChangePriorityModal isOpen={activeModal === 'PRIORITY'} onClose={closeModal} order={selectedOrder} onSubmit={(id, priority) => updateOrderPriority(id, priority)} />
       <CancelRequestModal isOpen={activeModal === 'CANCEL'} onClose={closeModal} order={selectedOrder} onSubmit={(id, reason) => updateOrderStatus(id, 'CANCELLATION_REQUESTED', { cancellationReason: reason })} />
+      <CompleteOrderModal isOpen={activeModal === 'COMPLETE'} onClose={closeModal} order={selectedOrder} onSubmit={(id) => updateOrderStatus(id, 'COMPLETED')} />
     </div>
   )
 }

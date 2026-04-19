@@ -48,5 +48,10 @@ export const adminService = {
   // 8. 查看单个工单 GET /admin/orders/{id}
   fetchOrderById: (id: number) => {
     return get<RepairOrder>(`/admin/orders/${id}`)
+  },
+
+  // 9. 获取工单统计状态 GET /admin/orders/stats
+  fetchStats: () => {
+    return get<{ pending: number, processing: number, completed: number, canceled: number }>('/admin/orders/stats')
   }
 }

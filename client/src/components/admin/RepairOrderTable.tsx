@@ -11,6 +11,7 @@ interface Props {
   onAssignWorker: (order: RepairOrder) => void
   onChangePriority: (order: RepairOrder) => void
   onRequestCancel: (order: RepairOrder) => void
+  onCompleteOrder?: (order: RepairOrder) => void
 }
 
 export const RepairOrderTable: React.FC<Props> = ({
@@ -20,14 +21,15 @@ export const RepairOrderTable: React.FC<Props> = ({
   onViewDetails,
   onAssignWorker,
   onChangePriority,
-  onRequestCancel
+  onRequestCancel,
+  onCompleteOrder
 }) => {
   if (orders.length === 0) {
     return <div className="py-10 text-center text-base-content/50">暂无可处理的工单</div>
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto min-h-[500px]">
       <table className="table">
         <thead>
           <tr>
@@ -81,6 +83,9 @@ export const RepairOrderTable: React.FC<Props> = ({
                                 </li>
                                 {order.status === 'PENDING' && (
                                     <li><button className="text-info" onClick={() => onAssignWorker(order)}>指派并转处理中</button></li>
+                                )}
+                                {order.status === 'PROCESSING' && onCompleteOrder && (
+                                    <li><button className="text-success" onClick={() => onCompleteOrder(order)}>完成工单</button></li>
                                 )}
                                 {(order.status === 'PENDING' || order.status === 'PROCESSING') && (
                                     <li><button className="text-error" onClick={() => onRequestCancel(order)}>请求撤销工单</button></li>
