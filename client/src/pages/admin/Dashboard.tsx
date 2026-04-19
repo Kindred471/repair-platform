@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { AlertCircle, CheckCircle, Clock, Activity, Inbox } from 'lucide-react';
@@ -17,7 +17,7 @@ const chartData = [
   { name: '周日', pending: 0, completed: 1 },
 ];
 
-const COLORS = ['#FFBB28', '#0088FE', '#00C49F', '#FF8042']; // 对应: 待处理黄 处理中蓝 已完成绿 已撤销红
+
 
 export const Dashboard = () => {
   const { orders, refreshData } = useAdminOrders();
